@@ -2,7 +2,7 @@
 
 julia_version = "1.9.3"
 manifest_format = "2.0"
-project_hash = "b824e6e598656f6871dbfa956b971e88418c19cf"
+project_hash = "c424c91101c471d3b7bd258403a65b5ff17ff8d2"
 
 [[deps.Accessors]]
 deps = ["CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "MacroTools", "Test"]
@@ -900,10 +900,10 @@ uuid = "32165bc3-0280-59bc-8c0b-c33b6203efab"
 version = "4.2.7+0"
 
 [[deps.PackageCompiler]]
-deps = ["Artifacts", "Glob", "LazyArtifacts", "Libdl", "Pkg", "Printf", "RelocatableFolders", "TOML", "UUIDs"]
-git-tree-sha1 = "8040d4fce6697d98c679c5477e5257d39cef7623"
+deps = ["Artifacts", "Glob", "LazyArtifacts", "Libdl", "Pkg", "Printf", "RelocatableFolders", "TOML", "UUIDs", "p7zip_jll"]
+git-tree-sha1 = "762cbdf85ab712e1b7aae75ae919f3a2c5a93896"
 uuid = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
-version = "2.1.12"
+version = "2.1.14"
 
 [[deps.PackageExtensionCompat]]
 git-tree-sha1 = "fb28e33b8a95c4cee25ce296c817d89cc2e53518"
