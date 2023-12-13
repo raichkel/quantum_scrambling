@@ -8,12 +8,15 @@ Pkg.add("ITensorTDVP")
 Pkg.add("Observers")
 Pkg.add("Plots")
 Pkg.add("LinearAlgebra")
+Pkg.add("DataFrames")
+
 
 using ITensors
 using ITensorTDVP
 using Plots
 using Observers
 using LinearAlgebra
+using DataFrames
 
 
 # Define mixed-field Ising Hamiltionian operator terms:
@@ -54,7 +57,7 @@ function identity(N, sitesext)
 end
 
 
-function commutator_H(N, hx, hz, J)
+function commutator_H(N, hx, hz, J; H="MF", τ=0)
     # think? this is still mixed field Ising model......
     # Vectorisation approach used here is to stack matrix rows into a column vector.
     # This means that:
@@ -65,13 +68,27 @@ function commutator_H(N, hx, hz, J)
     # Define "Commutator" Hamiltonian operator terms:
 
     H_op = OpSum()
-    for i=1:2*(N-1)
-        H_op += (-1)^(i-1) *  J,"Sz",i,"Sz",i+2
-    end
-    for i=1:2*N
-        H_op += (-1)^(i-1) *  hx,"Sx",i
-        H_op += (-1)^(i-1) *  hz,"Sz",i
-    end
+    if H=="MF" || H=="TF" 
+        for i=1:2*(N-1)
+            H_op += (-1)^(i-1) *  J,"Sz",i,"Sz",i+2
+        end
+        for i=1:2*N
+            H_op += (-1)^(i-1) *  hx,"Sx",i
+            H_op += (-1)^(i-1) *  hz,"Sz",i
+        end
+
+    elseif H=="K"
+        for i=1:2*(N-1)
+            H_op += (-1)^(i-1) *  J,"Sz",i,"Sz",i+2
+        end
+        for i=1:2*N
+            H_op += (-1)^(i-1) *  hx^2,"Sx",i
+            H_op += (-1)^(i-1) *  hz,"Sz",i
+        end
+
+        return τ * H_op
+    end 
+
     return H_op
 end 
 
@@ -107,12 +124,12 @@ function current_time(; current_time, bond, half_sweep)
     return nothing
 end
   
-function measure_SvN(; psi, bond, half_sweep)
-    if bond == 1 && half_sweep == 2
-    return entanglement_entropy(psi)
-    end
-    return nothing
-end
+# function measure_SvN(; psi, bond, half_sweep)
+#     if bond == 1 && half_sweep == 2
+#     return entanglement_entropy(psi) - SvN_init
+#     end
+#     return nothing
+# end
   
 function measure_linkdim(; psi, bond, half_sweep)
     if bond == 1 && half_sweep == 2
@@ -123,14 +140,30 @@ end;
 
 
 
-function main(T=5.0, N=21)
+
+function main(T=5.0, N=21; H="M", τ = 0.1)
+
     # N  Number of spins
     J  = 1.0    # ZZ interaction strength
-    hx = 1.05   # X-field 
-    hz = 0.5    # Z-field
     δt = 0.05   # Time-step for evolution
     # T  Total time
     χ  = 32;    # Max link dimension allowed
+
+
+    if H=="M" # mixed field ising
+        hx = 1.05   # X-field 
+        hz = 0.5    # Z-field
+    
+
+    elseif H=="TF" # transverse field ising
+        hx = 1.05   # X-field 
+        hz = 0.0    # Z-field
+    
+    elseif H=="K" # kicked ising
+        hx = 1.05   # X-field 
+        hz = 0.0    # Z-field
+
+    end 
 
     sitesext = siteinds("S=1/2",2*N)#; # Make 2N S=1/2 spin indices defining system + ancilla
 
@@ -143,7 +176,7 @@ function main(T=5.0, N=21)
     gates = [(Id[n]*Id[n+1] + Sm[n]*Sm[n+1]) for n in 1:2:(2*N)]; # Maps |00> => |00> + |11>
     Ivac = apply(gates, Ivac; cutoff=1e-10); # Note we have no 1/sqrt(2) normalisation
 
-    H_op = commutator_H(N, hx, hz,J)
+    H_op = commutator_H(N, hx, hz,J; H=H, τ = τ)
     # HC = H ⊗ I - I ⊗ H, since H is real and hermitian H = H^T.
     # Convert these terms to an MPO
     HC = MPO(H_op,sitesext)#;
@@ -155,55 +188,66 @@ function main(T=5.0, N=21)
     A = MPO(A_op,sitesext);                # Build the MPO from these terms
     Avec = apply(A, Ivac; cutoff=1e-15);   # Compute |A> = A|I>
 
+    SvN_init = entanglement_entropy(Avec)
+
+    function measure_SvN(; psi, bond, half_sweep)
+        if bond == 1 && half_sweep == 2
+        return entanglement_entropy(psi) - SvN_init
+        end
+        return nothing
+    end
+
     # Perform TDVP evolution of |A(t)>:
     obs = Observer("times" => current_time, "SvN" => measure_SvN, "chi" => measure_linkdim)
+    #print(obs)
 
+    #print("colmetadata(obs,:'times'):")
+    #print(colmetadata(obs,:"times"))
     # d|A(t)>/dt = i HC |A(t)> so |A(t)> = exp(i t HC)|A(0)> 
-    ψf = tdvp(HC, im * T, Avec; 
-                time_step = im * δt,
-                normalize = false, 
-                maxdim = χ,
-                cutoff = 1e-10,
-                outputlevel=1,
-                (observer!)=obs);
+    ψf = tdvp(HC, im * T, Avec; time_step = im * δt,normalize = false,maxdim = χ,cutoff = 1e-10,outputlevel=1,(observer!)=obs);
+    # NamedTuple error: NamedTuple is bit after ;
+    # trying to input SvN as a part of this NamedTuple 
 
+    #print(size(obs))
     # Extract results from time-step observations
     times = obs.times
     SvN = obs.SvN
-    chi = obs.chi;
+    chi = obs.chi
+    
     
     # Plot the entanglement entropy of each bond for system + ancilla:
     gr()
     heat = heatmap(1:(2*N), times, reduce(vcat,transpose.(SvN)), c = :heat)
-    savefig(heat,"heatmap.png")
+    savefig(heat,"heatmap_kicked.png")
     # Plot the entanglement entropy for bonds separating system + ancilla pairs:
     gr()
     S = reduce(vcat,transpose.(SvN))[:,2:2:(2*N)]
     heat1 = heatmap(1:N, times, S, c = :heat)
-    savefig(heat1,"heatmap_bonds_sep.png")
+    savefig(heat1,"heatmap_bonds_sep_kicked.png")
 
     # Plot entanglement entropy of bonds between system + ancilla pairs:
     gr()
     S = reduce(vcat,transpose.(SvN))[:,1:2:(2*N)]
     heat2 = heatmap(1:N, times, S, c = :heat)
-    savefig(heat2,"heatmap_bonds_between.png")
+    savefig(heat2,"heatmap_bonds_between_kicked.png")
 
     # Plot the growth in the maximum link dimension with time:
     plot(times, chi, label=false)  
     scatter = scatter!(times, chi, label=false) 
-    savefig(scatter,"scatter.png")
+    savefig(scatter,"scatter_kicked.png")
 
 
 end
 
 
 # get values from ARGS
-T, N = ARGS[1:end]
+T, N, H, τ = ARGS[1:end]
 
 
 N = parse(Int64, N)
 T = parse(Float64, T)
+τ = parse(Int64, τ)
 
-main(T,N)
+main(T,N; H, τ)
 
 
