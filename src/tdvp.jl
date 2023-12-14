@@ -57,7 +57,7 @@ function identity(N, sitesext)
 end
 
 
-function commutator_H(N, hx, hz, J; H="MF", τ=0)
+function commutator_H(N, hx, hz, J; H="MF", τ=0, K=0)
     # think? this is still mixed field Ising model......
     # Vectorisation approach used here is to stack matrix rows into a column vector.
     # This means that:
@@ -78,15 +78,36 @@ function commutator_H(N, hx, hz, J; H="MF", τ=0)
         end
 
     elseif H=="K"
+
+        # Ising interaction term with transverse and longitudinal fields
+        # hx: transverse
+        # hz: longitudinal
         for i=1:2*(N-1)
-            H_op += (-1)^(i-1) *  J,"Sz",i,"Sz",i+2
-        end
-        for i=1:2*N
-            H_op += (-1)^(i-1) *  hx^2,"Sx",i
-            H_op += (-1)^(i-1) *  hz,"Sz",i
+    
+            H_op += (-1)^(i-1) * J,"Sz",i,"Sz",i+2
+
+            H_op += (-1)^(i-1) * hz,"Sx",i
         end
 
-        return τ * H_op
+        # periodic boundary conditions?
+        # H_op += (-1)^(i-1) * "Sz",N,1 % N + 1,J
+        # H_op += (-1)^(i-1) * "Sx",L,hz
+
+
+        # External field term
+        for i=1:2*N 
+            
+            H_op += (-1)^(i-1) *  hx,"Sx",i
+
+
+        end
+
+        # Kicked term
+        for  i=1:2*N 
+            H_op +=  (-1)^(i-1) * K,"Sz",i,"Sz",i,"t",τ
+        end
+
+    
     end 
 
     return H_op
@@ -141,7 +162,7 @@ end;
 
 
 
-function main(T=5.0, N=21; H="M", τ = 0.1)
+function main(T=5.0, N=21; H="M", τ = 0.1, K=1.0)
 
     # N  Number of spins
     J  = 1.0    # ZZ interaction strength
@@ -167,6 +188,9 @@ function main(T=5.0, N=21; H="M", τ = 0.1)
 
     sitesext = siteinds("S=1/2",2*N)#; # Make 2N S=1/2 spin indices defining system + ancilla
 
+    
+  
+
     Sp, Sm = raise_lower(sitesext,N)
 
     Id = identity(N, sitesext)
@@ -176,7 +200,7 @@ function main(T=5.0, N=21; H="M", τ = 0.1)
     gates = [(Id[n]*Id[n+1] + Sm[n]*Sm[n+1]) for n in 1:2:(2*N)]; # Maps |00> => |00> + |11>
     Ivac = apply(gates, Ivac; cutoff=1e-10); # Note we have no 1/sqrt(2) normalisation
 
-    H_op = commutator_H(N, hx, hz,J; H=H, τ = τ)
+    H_op = commutator_H(N, hx, hz,J; H=H, τ = τ, K=K)
     # HC = H ⊗ I - I ⊗ H, since H is real and hermitian H = H^T.
     # Convert these terms to an MPO
     HC = MPO(H_op,sitesext)#;
@@ -241,13 +265,14 @@ end
 
 
 # get values from ARGS
-T, N, H, τ = ARGS[1:end]
+T, N, H, τ,K = ARGS[1:end]
 
 
 N = parse(Int64, N)
 T = parse(Float64, T)
-τ = parse(Int64, τ)
+τ = parse(Float64, τ)
+K = parse(Float64, K)
 
-main(T,N; H, τ)
+main(T,N; H, τ,K)
 
 
