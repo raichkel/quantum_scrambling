@@ -57,7 +57,7 @@ function identity(N, sitesext)
 end
 
 
-function commutator_H(N, hx, hz, J; H="MF", τ=0, K=0)
+function commutator_H(N, hx, hz, J; H="MF",Δ=1)
     # think? this is still mixed field Ising model......
     # Vectorisation approach used here is to stack matrix rows into a column vector.
     # This means that:
@@ -76,39 +76,19 @@ function commutator_H(N, hx, hz, J; H="MF", τ=0, K=0)
             H_op += (-1)^(i-1) *  hx,"Sx",i
             H_op += (-1)^(i-1) *  hz,"Sz",i
         end
+    
 
-    elseif H=="K"
+    elseif H=="H"
 
-        # Ising interaction term with transverse and longitudinal fields
-        # hx: transverse
-        # hz: longitudinal
+        E = 3*J
         for i=1:2*(N-1)
+
+            H_op += (-1)^(i-1) * J/E,"Sx",i,"Sx",i+2
+            H_op += (-1)^(i-1) * J/E,"Sy",i,"Sy",i+2
+            H_op += (-1)^(i-1) * J/E, Δ, "Sz",i,"Sz",i+2
+        end
     
-            H_op += (-1)^(i-1) * J,"Sz",i,"Sz",i+2
-
-            H_op += (-1)^(i-1) * hz,"Sx",i
-        end
-
-        # periodic boundary conditions?
-        # H_op += (-1)^(i-1) * "Sz",N,1 % N + 1,J
-        # H_op += (-1)^(i-1) * "Sx",L,hz
-
-
-        # External field term
-        for i=1:2*N 
-            
-            H_op += (-1)^(i-1) *  hx,"Sx",i
-
-
-        end
-
-        # Kicked term
-        for  i=1:2*N 
-            H_op +=  (-1)^(i-1) * K,"Sz",i,"Sz",i,"t",τ
-        end
-
-    
-    end 
+    end
 
     return H_op
 end 
@@ -162,7 +142,7 @@ end;
 
 
 
-function main(T=5.0, N=21; H="M", τ = 0.1, K=1.0)
+function main(T=5.0, N=21; H="M", Δ=1 )
 
     # N  Number of spins
     J  = 1.0    # ZZ interaction strength
@@ -180,12 +160,11 @@ function main(T=5.0, N=21; H="M", τ = 0.1, K=1.0)
         hx = 1.05   # X-field 
         hz = 0.0    # Z-field
     
-    elseif H=="K" # kicked ising
-        hx = 1.05   # X-field 
+    elseif H=="H"
+        hx = 0.0   # X-field 
         hz = 0.0    # Z-field
-
+    
     end 
-
     sitesext = siteinds("S=1/2",2*N)#; # Make 2N S=1/2 spin indices defining system + ancilla
 
     
@@ -200,7 +179,7 @@ function main(T=5.0, N=21; H="M", τ = 0.1, K=1.0)
     gates = [(Id[n]*Id[n+1] + Sm[n]*Sm[n+1]) for n in 1:2:(2*N)]; # Maps |00> => |00> + |11>
     Ivac = apply(gates, Ivac; cutoff=1e-10); # Note we have no 1/sqrt(2) normalisation
 
-    H_op = commutator_H(N, hx, hz,J; H=H, τ = τ, K=K)
+    H_op = commutator_H(N, hx, hz,J; H=H, Δ=Δ )
     # HC = H ⊗ I - I ⊗ H, since H is real and hermitian H = H^T.
     # Convert these terms to an MPO
     HC = MPO(H_op,sitesext)#;
@@ -242,37 +221,36 @@ function main(T=5.0, N=21; H="M", τ = 0.1, K=1.0)
     # Plot the entanglement entropy of each bond for system + ancilla:
     gr()
     heat = heatmap(1:(2*N), times, reduce(vcat,transpose.(SvN)), c = :heat)
-    savefig(heat,"heatmap_kicked.png")
+    savefig(heat,"heatmap_delta.png")
     # Plot the entanglement entropy for bonds separating system + ancilla pairs:
     gr()
     S = reduce(vcat,transpose.(SvN))[:,2:2:(2*N)]
     heat1 = heatmap(1:N, times, S, c = :heat)
-    savefig(heat1,"heatmap_bonds_sep_kicked.png")
+    savefig(heat1,"heatmap_bonds_sep_delta.png")
 
     # Plot entanglement entropy of bonds between system + ancilla pairs:
     gr()
     S = reduce(vcat,transpose.(SvN))[:,1:2:(2*N)]
     heat2 = heatmap(1:N, times, S, c = :heat)
-    savefig(heat2,"heatmap_bonds_between_kicked.png")
+    savefig(heat2,"heatmap_bonds_between_delta.png")
 
     # Plot the growth in the maximum link dimension with time:
     plot(times, chi, label=false)  
     scatter = scatter!(times, chi, label=false) 
-    savefig(scatter,"scatter_kicked.png")
+    savefig(scatter,"scatter_delta.png")
 
 
 end
 
 
 # get values from ARGS
-T, N, H, τ,K = ARGS[1:end]
+T, N, H, Δ = ARGS[1:end]
 
 
 N = parse(Int64, N)
 T = parse(Float64, T)
-τ = parse(Float64, τ)
-K = parse(Float64, K)
+Δ = parse(Float64, Δ)
 
-main(T,N; H, τ,K)
+main(T,N; H, Δ)
 
 
