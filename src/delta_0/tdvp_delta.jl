@@ -1,14 +1,14 @@
 import Pkg
 using Pkg
-# Pkg.Registry.update()
+Pkg.Registry.update()
 
-# Pkg.instantiate()
-# Pkg.add("ITensors")
-# Pkg.add("ITensorTDVP")
-# Pkg.add("Observers")
-# Pkg.add("Plots")
-# Pkg.add("LinearAlgebra")
-# Pkg.add("DataFrames")
+Pkg.instantiate()
+Pkg.add("ITensors")
+Pkg.add("ITensorTDVP")
+Pkg.add("Observers")
+Pkg.add("Plots")
+Pkg.add("LinearAlgebra")
+Pkg.add("DataFrames")
 
 
 using ITensors
@@ -215,18 +215,13 @@ function main(T=5.0, N=21; H="M", Δ=1 )
     # Extract results from time-step observations
     times = obs.times
     SvN = obs.SvN
-
     chi = obs.chi
-    print(size(times))
-    print(times[1])
+    
     
     # Plot the entanglement entropy of each bond for system + ancilla:
     gr()
     heat = heatmap(1:(2*N), times, reduce(vcat,transpose.(SvN)), c = :heat)
-    plot1 = plot(1:(2*N):10/(2*N), times, linewidth=2, color=:red)
-    savefig(heat, "heatmap_delta.png")
-    savefig(plot1, "plot.png")
-
+    savefig(heat,"heatmap_delta.png")
     # Plot the entanglement entropy for bonds separating system + ancilla pairs:
     gr()
     S = reduce(vcat,transpose.(SvN))[:,2:2:(2*N)]
