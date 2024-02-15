@@ -1,0 +1,145 @@
+cpu-bind=MASK - bp1-compute199, task  0  0 [17971]: mask 0xfffffff0fffffff set
+qt.qpa.xcb: could not connect to display 
+qt.qpa.plugin: From 6.5.0, xcb-cursor0 or libxcb-cursor0 is needed to load the Qt xcb platform plugin.
+qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
+This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+
+Available platform plugins are: minimalegl, eglfs, xcb, minimal, vkkhrdisplay, linuxfb, vnc, offscreen.
+
+connect: Connection refused
+GKS: can't connect to GKS socket application
+
+GKS: Open failed in routine OPEN_WS
+GKS: GKS not in proper state. GKS must be either in the state WSOP or WSAC in routine ACTIVATE_WS
+qt.qpa.xcb: could not connect to display 
+qt.qpa.plugin: From 6.5.0, xcb-cursor0 or libxcb-cursor0 is needed to load the Qt xcb platform plugin.
+qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
+This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+
+Available platform plugins are: minimalegl, eglfs, xcb, minimal, vkkhrdisplay, linuxfb, vnc, offscreen.
+
+connect: Connection refused
+GKS: can't connect to GKS socket application
+
+GKS: Open failed in routine OPEN_WS
+GKS: GKS not in proper state. GKS must be either in the state WSOP or WSAC in routine ACTIVATE_WS
+qt.qpa.xcb: could not connect to display 
+qt.qpa.plugin: From 6.5.0, xcb-cursor0 or libxcb-cursor0 is needed to load the Qt xcb platform plugin.
+qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
+This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+
+Available platform plugins are: minimalegl, eglfs, xcb, minimal, vkkhrdisplay, linuxfb, vnc, offscreen.
+
+connect: Connection refused
+GKS: can't connect to GKS socket application
+
+GKS: Open failed in routine OPEN_WS
+GKS: GKS not in proper state. GKS must be either in the state WSOP or WSAC in routine ACTIVATE_WS
+qt.qpa.xcb: could not connect to display 
+qt.qpa.plugin: From 6.5.0, xcb-cursor0 or libxcb-cursor0 is needed to load the Qt xcb platform plugin.
+qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
+This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+
+Available platform plugins are: minimalegl, eglfs, xcb, minimal, vkkhrdisplay, linuxfb, vnc, offscreen.
+
+connect: Connection refused
+GKS: can't connect to GKS socket application
+
+GKS: Open failed in routine OPEN_WS
+GKS: GKS not in proper state. GKS must be either in the state WSOP or WSAC in routine ACTIVATE_WS
+qt.qpa.xcb: could not connect to display 
+qt.qpa.plugin: From 6.5.0, xcb-cursor0 or libxcb-cursor0 is needed to load the Qt xcb platform plugin.
+qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
+This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+
+Available platform plugins are: minimalegl, eglfs, xcb, minimal, vkkhrdisplay, linuxfb, vnc, offscreen.
+
+connect: Connection refused
+GKS: can't connect to GKS socket application
+
+GKS: Open failed in routine OPEN_WS
+GKS: GKS not in proper state. GKS must be either in the state WSOP or WSAC in routine ACTIVATE_WS
+qt.qpa.xcb: could not connect to display 
+qt.qpa.plugin: From 6.5.0, xcb-cursor0 or libxcb-cursor0 is needed to load the Qt xcb platform plugin.
+qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
+This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+
+Available platform plugins are: minimalegl, eglfs, xcb, minimal, vkkhrdisplay, linuxfb, vnc, offscreen.
+
+connect: Connection refused
+GKS: can't connect to GKS socket application
+
+GKS: Open failed in routine OPEN_WS
+GKS: GKS not in proper state. GKS must be either in the state WSOP or WSAC in routine ACTIVATE_WS
+    Updating registry at `~/.julia/registries/General.toml`
+    Updating registry at `~/.julia/registries/General.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+ERROR: LoadError: BoundsError: attempt to access 1900-element Vector{Float64} at index [1901:2000]
+Stacktrace:
+  [1] throw_boundserror(A::Vector{Float64}, I::Tuple{UnitRange{Int64}})
+    @ Base ./abstractarray.jl:703
+  [2] checkbounds
+    @ ./abstractarray.jl:668 [inlined]
+  [3] getindex(A::Vector{Float64}, I::UnitRange{Int64})
+    @ Base ./array.jl:930
+  [4] gr_draw_segments(series::Plots.Series, x::Vector{Float64}, y::Vector{Float64}, z::Nothing, fillrange::Nothing, clims::Tuple{Float64, Float64})
+    @ Plots ~/.julia/packages/Plots/sxUvK/src/backends/gr.jl:1825
+  [5] gr_add_series(sp::Plots.Subplot{Plots.GRBackend}, series::Plots.Series)
+    @ Plots ~/.julia/packages/Plots/sxUvK/src/backends/gr.jl:1742
+  [6] gr_display(sp::Plots.Subplot{Plots.GRBackend}, w::Measures.AbsoluteLength, h::Measures.AbsoluteLength, vp_canvas::Plots.GRViewport{Float64})
+    @ Plots ~/.julia/packages/Plots/sxUvK/src/backends/gr.jl:964
+  [7] (::Plots.var"#534#535"{Int64, Int64, Plots.GRViewport{Float64}})(sp::Plots.Subplot{Plots.GRBackend})
+    @ Plots ~/.julia/packages/Plots/sxUvK/src/backends/gr.jl:688
+  [8] foreach(f::Plots.var"#534#535"{Int64, Int64, Plots.GRViewport{Float64}}, itr::Vector{Plots.Subplot})
+    @ Base ./abstractarray.jl:2774
+  [9] gr_display(plt::Plots.Plot{Plots.GRBackend}, dpi_factor::Float64)
+    @ Plots ~/.julia/packages/Plots/sxUvK/src/backends/gr.jl:688
+ [10] #575
+    @ ~/.julia/packages/Plots/sxUvK/src/backends/gr.jl:2062 [inlined]
+ [11] withenv(::Plots.var"#575#576"{Plots.Plot{Plots.GRBackend}, Float64}, ::Pair{String, String}, ::Vararg{Pair{String, String}})
+    @ Base ./env.jl:172
+ [12] _show(io::IOStream, #unused#::MIME{Symbol("image/png")}, plt::Plots.Plot{Plots.GRBackend})
+    @ Plots ~/.julia/packages/Plots/sxUvK/src/backends/gr.jl:2057
+ [13] #invokelatest#2
+    @ ./essentials.jl:729 [inlined]
+ [14] invokelatest
+    @ ./essentials.jl:726 [inlined]
+ [15] show
+    @ ~/.julia/packages/Plots/sxUvK/src/output.jl:232 [inlined]
+ [16] #342
+    @ ~/.julia/packages/Plots/sxUvK/src/output.jl:6 [inlined]
+ [17] open(::Plots.var"#342#343"{Plots.Plot{Plots.GRBackend}}, ::String, ::Vararg{String}; kwargs::Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})
+    @ Base ./io.jl:384
+ [18] open
+    @ ./io.jl:381 [inlined]
+ [19] png(plt::Plots.Plot{Plots.GRBackend}, fn::String)
+    @ Plots ~/.julia/packages/Plots/sxUvK/src/output.jl:6
+ [20] savefig(plt::Plots.Plot{Plots.GRBackend}, fn::String)
+    @ Plots ~/.julia/packages/Plots/sxUvK/src/output.jl:149
+ [21] savefig(fn::String)
+    @ Plots ~/.julia/packages/Plots/sxUvK/src/output.jl:154
+ [22] main(T::Float64, N::Int64; H::String, Δ::Float64)
+    @ Main ~/log_log/c_early_plot.jl:392
+ [23] top-level scope
+    @ ~/log_log/c_early_plot.jl:408
+in expression starting at /user/home/pq20206/log_log/c_early_plot.jl:408
