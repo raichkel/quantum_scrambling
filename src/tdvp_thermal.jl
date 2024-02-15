@@ -184,7 +184,7 @@ function main(T=5.0, N=21; H="MF", Δ=1, β=0.1 )
     # N  Number of spins
     J  = 1.0    # ZZ interaction strength
     δt = 0.05   # Time-step for evolution
-    δβ = β/200
+    δβ = β/50
     # T  Total time
     χ  = 32   # Max link dimension allowed
 
@@ -232,13 +232,14 @@ function main(T=5.0, N=21; H="MF", Δ=1, β=0.1 )
         end
         return nothing
     end
+
     function measure_commutator(; psi, bond, half_sweep)
         Sx_5_system, Sx_5_ancilla= local_op(N,sitesext;r=5)
-        Sx_10_system, Sx_10_ancilla= local_op(N,sitesext;r=10)
-        Sx_20_system, Sx_20_ancilla= local_op(N,sitesext;r=20)
-        Sx_30_system, Sx_30_ancilla= local_op(N,sitesext;r=30)
-        Sx_40_system, Sx_40_ancilla= local_op(N,sitesext;r=40)
-        Sx_50_system, Sx_50_ancilla= local_op(N,sitesext;r=50)
+        Sx_10_system, Sx_10_ancilla= local_op(N,sitesext;r=5)
+        Sx_20_system, Sx_20_ancilla= local_op(N,sitesext;r=5)
+        Sx_30_system, Sx_30_ancilla= local_op(N,sitesext;r=5)
+        Sx_40_system, Sx_40_ancilla= local_op(N,sitesext;r=5)
+        Sx_50_system, Sx_50_ancilla= local_op(N,sitesext;r=5)
       
       
         if bond == 1 && half_sweep == 2
@@ -275,7 +276,7 @@ function main(T=5.0, N=21; H="MF", Δ=1, β=0.1 )
     A_op = OpSum()
     A_op += 1.0,"Sx",2*floor(Int,N/2+1)-1  # Sx operator in the middle of the system
     A = MPO(A_op,sitesext);                # Build the MPO from these terms
-    Avec = apply(A, ρ_β; cutoff=1e-15)
+    Avec = apply(A, ρ_β; cutoff=1e-15) *2^N
 
     SvN_init = entanglement_entropy(Avec)
 
@@ -360,7 +361,7 @@ function main(T=5.0, N=21; H="MF", Δ=1, β=0.1 )
     ylabel!("χ")
     savefig("scatter_delta.png")
 
-    print(C_r_t_5)
+   
     min_y = -70
 
     plot(times,log.(C_r_t_5), label="r=5", left_margin=20px)
