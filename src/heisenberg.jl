@@ -51,7 +51,7 @@ function identity(N, sitesext)
 end
 
 
-function commutator_H(N, hx, hz, J; H="MF",Δ=1,Bx=0.01,Bz=0.01,Jx=1.0,Jy=0.75,Jz=1.25)
+function commutator_H(N;Jx=1.0,Jy=0.75,Jz=1.25)
     # think? this is still mixed field Ising model......
     # Vectorisation approach used here is to stack matrix rows into a column vector.
     # This means that:
@@ -62,51 +62,20 @@ function commutator_H(N, hx, hz, J; H="MF",Δ=1,Bx=0.01,Bz=0.01,Jx=1.0,Jy=0.75,J
     # Define "Commutator" Hamiltonian operator terms:
 
     H_op = OpSum()
-    if H=="MF" || H=="TF" 
-        for i=1:2*(N-1)
-            H_op += (-1)^(i-1) *  J,"Sz",i,"Sz",i+2
-        end
-        for i=1:2*N
-            H_op += (-1)^(i-1) *  hx,"Sx",i
-            H_op += (-1)^(i-1) *  hz,"Sz",i
-        end
+
+
+    E = 2*sqrt(Jx^2 + Jy^2 + Jz^2)
+
+    for i=1:2*(N-1)
+        # XYZ Heisenberg for Jx!=Jy!=Jz
+        # XXZ Heisenbergfor Jx=Jy!=Jz
+        H_op += (-1)^(i-1) * Jx/E,"Sx",i,"Sx",i+2
+        H_op += (-1)^(i-1) * Jy/E,"Sy",i,"Sy",i+2
+        H_op += (-1)^(i-1) * Jz/E, Δ, "Sz",i,"Sz",i+2
+        
     
-
-    elseif H=="H"
-
-        E = 2*sqrt(Jx^2 + Jy^2 + Jz^2)
-
-        for i=1:2*(N-1)
-            # XYZ Heisenberg for Jx!=Jy!=Jz
-            # XXZ Heisenbergfor Jx=Jy!=Jz
-            H_op += (-1)^(i-1) * Jx/E,"Sx",i,"Sx",i+2
-            H_op += (-1)^(i-1) * Jy/E,"Sy",i,"Sy",i+2
-            H_op += (-1)^(i-1) * Jz/E, Δ, "Sz",i,"Sz",i+2
-            
         
-           
-        end
-
-    elseif H=="HB"
-
-        E = 2*sqrt(Jx^2 + Jy^2 + Jz^2)
-
-        for i=1:2*(N-1)
-            # XXZ Heisenberg, use Jx=Jy
-
-            H_op += (-1)^(i-1) * Jx/E,"Sx",i,"Sx",i+2
-            H_op += (-1)^(i-1) * Jx/E,"Sy",i,"Sy",i+2
-            H_op += (-1)^(i-1) * Jz/E, Δ, "Sz",i,"Sz",i+2
-            
-            # add external Z and optional X field
-            H_op += (-1)^(i-1) * Bz,"Sz",i
-            H_op += (-1)^(i-1) * Bx,"Sx",i
-        
-        
-        end
-
     end
-
 
     return H_op
 end 
@@ -178,33 +147,14 @@ end;
 
   
 
-function main(T=5.0, N=21; H="MF", Δ=1, Bx=0.01,Bz=0.01, Jx=1.0, Jy=0.75, Jz=1.25 )
+function main(T=5.0, N=21; Jx=1.0, Jy=0.75, Jz=1.25 )
 
-    # N  Number of spins
-    J  = 1.0    # ZZ interaction strength
+
     δt = 0.05   # Time-step for evolution
     # T  Total time
     χ  = 32;    # Max link dimension allowed
 
 
-    if H=="MF" # mixed field ising
-        hx = 1.05   # X-field 
-        hz = 0.5    # Z-field
-    
-
-    elseif H=="TF" # transverse field ising
-        hx = 1.05   # X-field 
-        hz = 0.0    # Z-field
-    
-    elseif H=="H"
-        hx = 0.0   # X-field 
-        hz = 0.0    # Z-field
-
-    elseif H=="HB"
-        hx = 0.0   # X-field 
-        hz = 0.0    # Z-field
-
-    end 
     sitesext = siteinds("S=1/2",2*N)#; # Make 2N S=1/2 spin indices defining system + ancilla
 
 
@@ -217,7 +167,7 @@ function main(T=5.0, N=21; H="MF", Δ=1, Bx=0.01,Bz=0.01, Jx=1.0, Jy=0.75, Jz=1.
     gates = [(Id[n]*Id[n+1] + Sm[n]*Sm[n+1]) for n in 1:2:(2*N)]; # Maps |00> => |00> + |11>
     Ivac = apply(gates, Ivac; cutoff=1e-10); # Note we have no 1/sqrt(2) normalisation
 
-    H_op = commutator_H(N, hx, hz,J; H=H, Δ=Δ, Jx=Jx,Jy=Jy,Jz=Jz)
+    H_op = commutator_H(N; Jx=Jx,Jy=Jy,Jz=Jz)
     # HC = H ⊗ I - I ⊗ H, since H is real and hermitian H = H^T.
     # Convert these terms to an MPO
     HC = MPO(H_op,sitesext)#;
@@ -240,10 +190,10 @@ function main(T=5.0, N=21; H="MF", Δ=1, Bx=0.01,Bz=0.01, Jx=1.0, Jy=0.75, Jz=1.
     function measure_commutator(; psi, bond, half_sweep)
         Sx_5_system, Sx_5_ancilla= local_op(N,sitesext;r=5)
         Sx_10_system, Sx_10_ancilla= local_op(N,sitesext;r=10)
-        Sx_20_system, Sx_20_ancilla= local_op(N,sitesext;r=10)
-        Sx_30_system, Sx_30_ancilla= local_op(N,sitesext;r=10)
-        Sx_40_system, Sx_40_ancilla= local_op(N,sitesext;r=10)
-        Sx_50_system, Sx_50_ancilla= local_op(N,sitesext;r=10)
+        Sx_20_system, Sx_20_ancilla= local_op(N,sitesext;r=20)
+        Sx_30_system, Sx_30_ancilla= local_op(N,sitesext;r=30)
+        Sx_40_system, Sx_40_ancilla= local_op(N,sitesext;r=40)
+        Sx_50_system, Sx_50_ancilla= local_op(N,sitesext;r=50)
       
       
         if bond == 1 && half_sweep == 2
@@ -381,7 +331,7 @@ function main(T=5.0, N=21; H="MF", Δ=1, Bx=0.01,Bz=0.01, Jx=1.0, Jy=0.75, Jz=1.
     # Write logC data to CSV file
     # Construct DataFrame
     df_C = DataFrame(times = times, C_5 = C_r_t_5,C_10 = C_r_t_10, C_20 = C_r_t_20, C_30 = C_r_t_30,
-                        C_40 = C_r_t_40,C_50 = C_r_t_50)
+                        C_40 = C_r_t_40,C_50 = C_r_t_50, SvN = SvN, chi=chi)
 
     df_r = DataFrame(r = r_array)
 
@@ -395,18 +345,13 @@ end
 
 
 # get values from ARGS
-T, N, H, Δ, Bx, Bz, Jx, Jy, Jz= ARGS[1:end]
+T, N, Jx, Jy, Jz= ARGS[1:end]
 
 
 N = parse(Int64, N)
 T = parse(Float64, T)
-Δ = parse(Float64, Δ)
-Bx = parse(Float64, Bx)
-Bz = parse(Float64, Bz)
 Jx = parse(Float64, Jx)
 Jy = parse(Float64, Jy)
 Jz = parse(Float64, Jz)
 
-main(T, N; H, Δ, Bx, Bz, Jx, Jy, Jz)
-
-
+main(T, N; Jx, Jy, Jz)

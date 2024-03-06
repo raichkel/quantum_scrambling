@@ -3,13 +3,14 @@ using Pkg
 Pkg.Registry.update()
 
 Pkg.instantiate()
-# Pkg.add("ITensors")
-# Pkg.add("ITensorTDVP")
-# Pkg.add("Observers")
-# Pkg.add("Plots")
-# Pkg.add("LinearAlgebra")
-# Pkg.add("DataFrames")
-# Pkg.add("LaTeXStrings")
+Pkg.add("ITensors")
+Pkg.add("ITensorTDVP")
+Pkg.add("Observers")
+Pkg.add("Plots")
+Pkg.add("LinearAlgebra")
+Pkg.add("DataFrames")
+Pkg.add("LaTeXStrings")
+Pkg.add("ColorSchemes")
 
 
 using ITensors
@@ -20,6 +21,7 @@ using LinearAlgebra
 using DataFrames
 using Plots.PlotMeasures
 using LaTeXStrings
+using ColorSchemes
 
 # Extract the raising, lowering and identity operators for the extended system:
 function raise_lower(sitesext,N)
@@ -44,7 +46,7 @@ function identity(N, sitesext)
 end
 
 
-function commutator_H(N, hx, hz, J; H="MF",Δ=1)
+function commutator_H(N, hx, hz, J;)
     # think? this is still mixed field Ising model......
     # Vectorisation approach used here is to stack matrix rows into a column vector.
     # This means that:
@@ -55,65 +57,19 @@ function commutator_H(N, hx, hz, J; H="MF",Δ=1)
     # Define "Commutator" Hamiltonian operator terms:
 
     H_op = OpSum()
-    if H=="MF" || H=="TF" 
-        for i=1:2*(N-1)
-            H_op += (-1)^(i-1) *  J,"Sz",i,"Sz",i+2
-        end
-        for i=1:2*N
-            H_op += (-1)^(i-1) *  hx,"Sx",i
-            H_op += (-1)^(i-1) *  hz,"Sz",i
-        end
-    
-
-    elseif H=="H"
-
-        E = 3*J
-        for i=1:2*(N-1)
-
-            H_op += (-1)^(i-1) * J/E,"Sx",i,"Sx",i+2
-            H_op += (-1)^(i-1) * J/E,"Sy",i,"Sy",i+2
-            H_op += (-1)^(i-1) * J/E, Δ, "Sz",i,"Sz",i+2
-        end
-    
+ 
+    for i=1:2*(N-1)
+        H_op += (-1)^(i-1) *  J,"Sz",i,"Sz",i+2
     end
+    for i=1:2*N
+        H_op += (-1)^(i-1) *  hx,"Sx",i
+        H_op += (-1)^(i-1) *  hz,"Sz",i
+    end
+
 
     return H_op
 end 
-function anticommutator_H(N, hx, hz, J; H="MF",Δ=1)
-    # think? this is still mixed field Ising model......
-    # Vectorisation approach used here is to stack matrix rows into a column vector.
-    # This means that:
-    # vec(AB) = A ⊗ I vec(B) =  I ⊗ B^T vec(A)
-    # so |i><j| => |i> ⊗ |j>
-    # vec(L A R) = L ⊗ R^T vec(A)
 
-    # Define "Commutator" Hamiltonian operator terms:
-
-    H_op = OpSum()
-    if H=="MF" || H=="TF" 
-        for i=1:2*(N-1)
-            H_op += J,"Sz",i,"Sz",i+2
-        end
-        for i=1:2*N
-            H_op += hx,"Sx",i
-            H_op += hz,"Sz",i
-        end
-    
-
-    elseif H=="H"
-
-        E = 3*J
-        for i=1:2*(N-1)
-
-            H_op += J/E,"Sx",i,"Sx",i+2
-            H_op += J/E,"Sy",i,"Sy",i+2
-            H_op += J/E, Δ, "Sz",i,"Sz",i+2
-        end
-    
-    end
-
-    return H_op
-end 
 
 # Define function for computing entanglement entropy
 
@@ -181,32 +137,21 @@ end;
 
   
 
-function main(T=5.0, N=21; H="MF", Δ=1, β=0.1 )
+function main(T=5.0, N=21;)
 
     # N  Number of spins
     J  = 1.0    # ZZ interaction strength
     δt = 0.05   # Time-step for evolution
-    δβ = β/50
     # T  Total time
-    χ  = 32   # Max link dimension allowed
+    χ  = 32;    # Max link dimension allowed
 
 
-    if H=="MF" # mixed field ising
-        hx = 1.05   # X-field 
-        hz = 0.5    # Z-field
-    
-
-    elseif H=="TF" # transverse field ising
-        hx = 1.05   # X-field 
-        hz = 0.0    # Z-field
-    
-    elseif H=="H"
-        hx = 0.0   # X-field 
-        hz = 0.0    # Z-field
-    
-    end 
+    # mixed field ising
+    hx = 1.05   # X-field 
+    hz = 0.5    # Z-field
 
     sitesext = siteinds("S=1/2",2*N)#; # Make 2N S=1/2 spin indices defining system + ancilla
+
 
     Sp, Sm = raise_lower(sitesext,N)
 
@@ -217,80 +162,66 @@ function main(T=5.0, N=21; H="MF", Δ=1, β=0.1 )
     gates = [(Id[n]*Id[n+1] + Sm[n]*Sm[n+1]) for n in 1:2:(2*N)]; # Maps |00> => |00> + |11>
     Ivac = apply(gates, Ivac; cutoff=1e-10); # Note we have no 1/sqrt(2) normalisation
 
-    H_op = commutator_H(N, hx, hz,J; H=H, Δ=Δ )
+    H_op = commutator_H(N, hx, hz,J;)
     # HC = H ⊗ I - I ⊗ H, since H is real and hermitian H = H^T.
     # Convert these terms to an MPO
-    HC = MPO(H_op,sitesext)
+    HC = MPO(H_op,sitesext)#;
 
-    H_op_a = anticommutator_H(N, hx, hz,J; H=H, Δ=Δ)
-    HA = MPO(H_op_a, sitesext)
+    # Define observable for scrambling:
 
+    A_op = OpSum()
+    A_op += 1.0,"Sx",2*floor(Int,N/2+1)-1  # Sx operator in the middle of the system
+    A = MPO(A_op,sitesext);                # Build the MPO from these terms
+    Avec = apply(A, Ivac; cutoff=1e-15);   # Compute |A> = A|I>
 
-    
+    SvN_init = entanglement_entropy(Avec)
 
     function measure_SvN(; psi, bond, half_sweep)
         if bond == 1 && half_sweep == 2
-        return entanglement_entropy(psi) - SvN_init
+            return entanglement_entropy(psi) - SvN_init
         end
         return nothing
     end
 
     function measure_commutator(; psi, bond, half_sweep)
         Sx_5_system, Sx_5_ancilla= local_op(N,sitesext;r=5)
-        Sx_10_system, Sx_10_ancilla= local_op(N,sitesext;r=5)
-        Sx_20_system, Sx_20_ancilla= local_op(N,sitesext;r=5)
-        Sx_30_system, Sx_30_ancilla= local_op(N,sitesext;r=5)
-        Sx_40_system, Sx_40_ancilla= local_op(N,sitesext;r=5)
-        Sx_50_system, Sx_50_ancilla= local_op(N,sitesext;r=5)
+        Sx_10_system, Sx_10_ancilla= local_op(N,sitesext;r=10)
+        Sx_20_system, Sx_20_ancilla= local_op(N,sitesext;r=20)
+        Sx_30_system, Sx_30_ancilla= local_op(N,sitesext;r=30)
+        Sx_40_system, Sx_40_ancilla= local_op(N,sitesext;r=40)
+        Sx_50_system, Sx_50_ancilla= local_op(N,sitesext;r=50)
       
       
         if bond == 1 && half_sweep == 2
           commutator_5 = compute_commutator(psi, Sx_5_system, Sx_5_ancilla)
-          commutator_10 = compute_commutator(psi, Sx_10_system, Sx_10_ancilla)
+          commutator_10 = compute_commutator(psi, Sx_10_system, Sx_10_ancilla)  
           commutator_20 = compute_commutator(psi, Sx_20_system, Sx_20_ancilla)
           commutator_30 = compute_commutator(psi, Sx_30_system, Sx_30_ancilla)
           commutator_40 = compute_commutator(psi, Sx_40_system, Sx_40_ancilla)
           commutator_50 = compute_commutator(psi, Sx_50_system, Sx_50_ancilla)
 
 
-        return [real.(inner(commutator_5, commutator_5)),real.(inner(commutator_10, commutator_10)),
-                real.(inner(commutator_20, commutator_20)), real.(inner(commutator_30, commutator_30)),
-                real.(inner(commutator_40, commutator_40)),  real.(inner(commutator_50, commutator_50))]
+        return [real.(inner(commutator_5, commutator_5)), real.(inner(commutator_10, commutator_10)),
+                  real.(inner(commutator_20, commutator_20)), real.(inner(commutator_30, commutator_30)),
+                  real.(inner(commutator_40, commutator_40)),  real.(inner(commutator_50, commutator_50))]
       
         end
         return nothing
       
     end;
-
-    # d|A(t)>/dt = i HC |A(t)> so |A(t)> = exp(i t HC)|A(0)> 
-    ψ_temp = tdvp(HA, β/2, Ivac; 
-        time_step = δβ,
-        normalize = false,
-        maxdim = χ,
-        cutoff = 1e-10,
-        outputlevel=1)
-
-
-    Z = inner(Ivac, ψ_temp) 
-
-    ρ_β = ψ_temp/Z
-
-    A_op = OpSum()
-    A_op += 1.0,"Sx",2*floor(Int,N/2+1)-1  # Sx operator in the middle of the system
-    A = MPO(A_op,sitesext);                # Build the MPO from these terms
-    Avec = apply(A, ρ_β; cutoff=1e-15) *2^N
-
-    SvN_init = entanglement_entropy(Avec)
-
     obs = Observer("times" => current_time, "SvN" => measure_SvN, "chi" => measure_linkdim,"Commutator"=>measure_commutator)
 
-    ψf = tdvp(HC, im*T, Avec; 
-          time_step = im*δt,
-          normalize = false,
-          maxdim = χ,
-          cutoff = 1e-10,
-          outputlevel=1,
-          (observer!)=obs)
+
+
+    # d|A(t)>/dt = i HC |A(t)> so |A(t)> = exp(i t HC)|A(0)> 
+    ψf = tdvp(HC, im * T, Avec; 
+            time_step = im * δt,
+            normalize = true,
+            maxdim = χ,
+            cutoff = 1e-10,
+            outputlevel=1,
+            (observer!)=obs)
+
     # Extract results from time-step observations
     times=obs.times
     SvN=obs.SvN
@@ -308,15 +239,14 @@ function main(T=5.0, N=21; H="MF", Δ=1, β=0.1 )
     two = BigFloat(2)
     N_bf = BigFloat(N)
 
-
     for line in Commutator
-
-        c_5 = 1/(two^N_bf) * line[1]
-        c_10 = 1/(two^N_bf) * line[2]
-        c_20 = 1/(two^N_bf) * line[3]
-        c_30 = 1/(two^N_bf) * line[4]
-        c_40 = 1/(two^N_bf) * line[5]
-        c_50 = 1/(two^N_bf) * line[6]
+        
+        c_5 = 1/(two^N_bf) * real(line[1])
+        c_10 = 1/(two^N_bf) * real(line[2])
+        c_20 = 1/(two^N_bf) * real(line[3])
+        c_30 = 1/(two^N_bf) * real(line[4])
+        c_40 = 1/(two^N_bf) * real(line[5])
+        c_50 = 1/(two^N_bf) * real(line[6])
 
         push!(C_r_t_5, c_5)
         push!(C_r_t_10, c_10)
@@ -324,58 +254,58 @@ function main(T=5.0, N=21; H="MF", Δ=1, β=0.1 )
         push!(C_r_t_30, c_30)
         push!(C_r_t_40, c_40)
         push!(C_r_t_50, c_50)
-    end
-
+    end;
     # Plot the entanglement entropy of each bond for system + ancilla:
     gr()
-    heat = heatmap(1:(2*N), times, reduce(vcat,transpose.(SvN)), c = :sunset, left_margin=20px, top_margin = 20px, right_margin=20px)
-
+    heat = heatmap(1:(2*N), times, reduce(vcat,transpose.(SvN)), c = :seaborn_rocket_gradient,left_margin=40px,
+        right_margin=40px, top_margin=40px,  bottom_margin = 40px, framestyle=:box, colorbar_title = "Entanglement Entropy")
     ylabel!("Time t")
     xlabel!("Site Index")
-    title!("Entanglement Entropy system + ancilla")
+    #title!("Entanglement Entropy system + ancilla")
     savefig(heat, "heatmap.png")
 
 
     # Plot the entanglement entropy for bonds separating system + ancilla pairs:
     gr()
     S = reduce(vcat,transpose.(SvN))[:,2:2:(2*N)]
-    heat1 = heatmap(1:N, times, S, c = :sunset, left_margin=20px, top_margin = 20px)
+    heat1 = heatmap(1:N, times, S, c = :seaborn_rocket_gradient,left_margin=40px,
+        right_margin=40px, top_margin=40px,  bottom_margin = 40px, framestyle=:box, colorbar_title = "Entanglement Entropy")
     ylabel!("Time t")
     xlabel!("Site Index")
-    title!("Entanglement Entropy Separating System and Ancilla")
+    #title!("Entanglement Entropy Separating System and Ancilla")
     savefig(heat1,"heatmap_bonds_sep.png")
 
     # Plot entanglement entropy of bonds between system + ancilla pairs:
     gr()
     S = reduce(vcat,transpose.(SvN))[:,1:2:(2*N)]
-    heat2 = heatmap(1:N, times, S,c = :sunset,left_margin=20px, top_margin = 20px)
+    heat2 = heatmap(1:N, times, S,c = :seaborn_rocket_gradient,left_margin=40px,
+        right_margin=40px, top_margin=40px,  bottom_margin = 40px, framestyle=:box, colorbar_title = "Entanglement Entropy")
     ylabel!("Time t")
     xlabel!("Site Index")
-    title!("Entanglement Entropy Between System and Ancilla")
+    #title!("Entanglement Entropy Between System and Ancilla")
     savefig(heat2,"heatmap_bonds_between.png")
 
-
     # Plot the growth in the maximum link dimension with time:
-    plot(times, chi, label=false,left_margin=20px, right_margin=20px, top_margin=20px, framestyle=:box, linecolor=:magenta)  
+    plot(times, chi, label=false,left_margin=20px, right_margin=20px, top_margin=20px,  bottom_margin = 20px, framestyle=:box, linecolor=get(ColorSchemes.seaborn_rocket_gradient,0.1))  
     xlabel!("Time")
     ylabel!(L"$\chi$")
     #scatter = scatter!(times, chi, label=false) 
     savefig("scatter.png")
 
-   
-    min_y = -70
 
-    plot(times,log.(C_r_t_5), label="r=5",left_margin=20px, top_margin = 20px, right_margin=20px)
+
+    plot(times,log.(C_r_t_5), label="r=5", left_margin=40px,top_margin = 40px,
+        right_margin=40px, bottom_margin = 40px, framestyle=:box, linecolor=get(ColorSchemes.seaborn_rocket_gradient,0.2))#, ylim=(min_y, 20)) #, ylim=(min_y, 20)
     #scatter!(times,log.(C_r_t_2), ylim=(min_y, 20))
-    plot!(times,log.(C_r_t_10), label="r=10") #!
+    plot!(times,log.(C_r_t_10), label="r=10", linecolor=get(ColorSchemes.seaborn_rocket_gradient,0.35))#, ylim=(min_y, 20)) #!
     #scatter!(times,log.(C_r_t_4), ylim=(min_y, 20))
-    plot!(times,log.(C_r_t_20), label="r=20")
+    plot!(times,log.(C_r_t_20), label="r=20", linecolor=get(ColorSchemes.seaborn_rocket_gradient, 0.5))#, ylim=(min_y, 20))
     #scatter!(times,log.(C_r_t_6), ylim=(min_y, 20))
-    plot!(times,log.(C_r_t_30), label="r=30")
+    plot!(times,log.(C_r_t_30), label="r=30", linecolor=get(ColorSchemes.seaborn_rocket_gradient, 0.65))#, ylim=(min_y, 20))
 
-    plot!(times,log.(C_r_t_40), label="r=40")
+    plot!(times,log.(C_r_t_40), label="r=40", linecolor=get(ColorSchemes.seaborn_rocket_gradient,0.8))#, ylim=(min_y, 20))
 
-    plot!(times,log.(C_r_t_50), label="r=50")
+    plot!(times,log.(C_r_t_50), label="r=50", linecolor=get(ColorSchemes.seaborn_rocket_gradient, 0.85))#, ylim=(min_y, 20))
 
     xlabel!("Time")
     ylabel!("log(C(r,t))")
@@ -387,14 +317,13 @@ end
 
 
 # get values from ARGS
-T, N, H, Δ, β = ARGS[1:end]
+T, N = ARGS[1:end]
 
 
 N = parse(Int64, N)
 T = parse(Float64, T)
-Δ = parse(Float64, Δ)
-β = parse(Float64, β)
 
-main(T,N; H, Δ, β)
+
+main(T, N;)
 
 
