@@ -71,7 +71,7 @@ function commutator_H(N; Bx=0.01,Bz=0.01,Jx=1.0,Jy=0.75,Jz=1.25)
 
         H_op += (-1)^(i-1) * Jx/E,"Sx",i,"Sx",i+2
         H_op += (-1)^(i-1) * Jx/E,"Sy",i,"Sy",i+2
-        H_op += (-1)^(i-1) * Jz/E, Δ, "Sz",i,"Sz",i+2
+        H_op += (-1)^(i-1) * Jz/E,"Sz",i,"Sz",i+2
         
         # add external Z and optional X field
         H_op += (-1)^(i-1) * Bz,"Sz",i
@@ -199,7 +199,10 @@ function main(T=5.0, N=21; Bx=0.01,Bz=0.01, Jx=1.0, Jy=0.75, Jz=1.25 )
         Sx_30_system, Sx_30_ancilla= local_op(N,sitesext;r=30)
         Sx_40_system, Sx_40_ancilla= local_op(N,sitesext;r=40)
         Sx_50_system, Sx_50_ancilla= local_op(N,sitesext;r=50)
-      
+        Sx_60_system, Sx_60_ancilla= local_op(N,sitesext;r=60)
+        Sx_70_system, Sx_70_ancilla= local_op(N,sitesext;r=70)
+        Sx_80_system, Sx_80_ancilla= local_op(N,sitesext;r=80)
+        Sx_90_system, Sx_90_ancilla= local_op(N,sitesext;r=90)
       
         if bond == 1 && half_sweep == 2
           commutator_5 = compute_commutator(psi, Sx_5_system, Sx_5_ancilla)
@@ -208,11 +211,16 @@ function main(T=5.0, N=21; Bx=0.01,Bz=0.01, Jx=1.0, Jy=0.75, Jz=1.25 )
           commutator_30 = compute_commutator(psi, Sx_30_system, Sx_30_ancilla)
           commutator_40 = compute_commutator(psi, Sx_40_system, Sx_40_ancilla)
           commutator_50 = compute_commutator(psi, Sx_50_system, Sx_50_ancilla)
-
+          commutator_60 = compute_commutator(psi, Sx_60_system, Sx_60_ancilla)
+          commutator_70 = compute_commutator(psi, Sx_70_system, Sx_70_ancilla)
+          commutator_80 = compute_commutator(psi, Sx_80_system, Sx_80_ancilla)
+          commutator_90 = compute_commutator(psi, Sx_90_system, Sx_90_ancilla)
 
         return [real.(inner(commutator_5, commutator_5)), real.(inner(commutator_10, commutator_10)),
                   real.(inner(commutator_20, commutator_20)), real.(inner(commutator_30, commutator_30)),
-                  real.(inner(commutator_40, commutator_40)),  real.(inner(commutator_50, commutator_50))]
+                  real.(inner(commutator_40, commutator_40)),  real.(inner(commutator_50, commutator_50)),
+                  real.(inner(commutator_60, commutator_60)),  real.(inner(commutator_70, commutator_70)),
+                  real.(inner(commutator_80, commutator_80)),  real.(inner(commutator_90, commutator_90))]
       
         end
         return nothing
@@ -245,6 +253,10 @@ function main(T=5.0, N=21; Bx=0.01,Bz=0.01, Jx=1.0, Jy=0.75, Jz=1.25 )
     C_r_t_30 = []
     C_r_t_40 = []
     C_r_t_50 = []
+    C_r_t_60 = []
+    C_r_t_70 = []
+    C_r_t_80 = []
+    C_r_t_90 = []
 
     two = BigFloat(2)
     N_bf = BigFloat(N)
@@ -257,6 +269,10 @@ function main(T=5.0, N=21; Bx=0.01,Bz=0.01, Jx=1.0, Jy=0.75, Jz=1.25 )
         c_30 = 1/(two^N_bf) * line[4]
         c_40 = 1/(two^N_bf) * line[5]
         c_50 = 1/(two^N_bf) * line[6]
+        c_60 = 1/(two^N_bf) * line[7]
+        c_70 = 1/(two^N_bf) * line[8]
+        c_80 = 1/(two^N_bf) * line[9]
+        c_90 = 1/(two^N_bf) * line[10]
 
         push!(C_r_t_5, c_5)
         push!(C_r_t_10, c_10)
@@ -264,6 +280,10 @@ function main(T=5.0, N=21; Bx=0.01,Bz=0.01, Jx=1.0, Jy=0.75, Jz=1.25 )
         push!(C_r_t_30, c_30)
         push!(C_r_t_40, c_40)
         push!(C_r_t_50, c_50)
+        push!(C_r_t_60, c_60)
+        push!(C_r_t_70, c_70)
+        push!(C_r_t_80, c_80)
+        push!(C_r_t_90, c_90)
     end;
     # # Plot the entanglement entropy of each bond for system + ancilla:
     # gr()
@@ -333,15 +353,17 @@ function main(T=5.0, N=21; Bx=0.01,Bz=0.01, Jx=1.0, Jy=0.75, Jz=1.25 )
     #logC_array_confined,times_confined,test_param_array,logC_early_array=fit_growth_early(logC_array,r_array,times_array,v_B,p0)
     # logC_array_confined, times_confined = fit_growth_early(logC_r_t_array, r_array, times_array, p0,v_B)
 
-    # Write logC data to CSV file
-    # Construct DataFrame
     df_C = DataFrame(times = times, C_5 = C_r_t_5,C_10 = C_r_t_10, C_20 = C_r_t_20, C_30 = C_r_t_30,
-                        C_40 = C_r_t_40,C_50 = C_r_t_50, SvN = SvN, chi=chi)
+    C_40 = C_r_t_40, C_50 = C_r_t_50, C_60 = C_r_t_60, C_70 = C_r_t_70, C_80 = C_r_t_80
+    , C_90 = C_r_t_90, chi=chi)
+
+    df_SvN = DataFrame(SvN, :auto)
 
     df_r = DataFrame(r = r_array)
 
     # Write DataFrame to CSV files
     CSV.write("C_array_MF.csv", df_C)
+    CSV.write("SvN_array_MF.csv", df_SvN)
 
 
 

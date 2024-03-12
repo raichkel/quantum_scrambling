@@ -1,0 +1,48 @@
+cpu-bind=MASK - bp1-compute199, task  0  0 [182420]: mask 0xfffffff0fffffff set
+    Updating registry at `~/.julia/registries/General.toml`
+    Updating registry at `~/.julia/registries/General.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+  No Changes to `~/.julia/environments/v1.8/Manifest.toml`
+   Resolving package versions...
+   Installed WorkerUtilities ─ v1.6.1
+   Installed WeakRefStrings ── v1.4.2
+   Installed FilePathsBase ─── v0.9.21
+   Installed CSV ───────────── v0.10.13
+    Updating `~/.julia/environments/v1.8/Project.toml`
+  [336ed68f] + CSV v0.10.13
+    Updating `~/.julia/environments/v1.8/Manifest.toml`
+  [336ed68f] + CSV v0.10.13
+  [48062228] + FilePathsBase v0.9.21
+  [ea10d353] + WeakRefStrings v1.4.2
+  [76eceee3] + WorkerUtilities v1.6.1
+Precompiling project...
+[32m  ✓ [39m[90mWorkerUtilities[39m
+[32m  ✓ [39m[90mWeakRefStrings[39m
+[32m  ✓ [39m[90mFilePathsBase[39m
+[32m  ✓ [39mCSV
+  4 dependencies successfully precompiled in 10 seconds. 267 already precompiled.
