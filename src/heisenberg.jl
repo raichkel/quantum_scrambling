@@ -64,7 +64,7 @@ function commutator_H(N;Jx=1.0,Jy=0.75,Jz=1.25)
     H_op = OpSum()
 
 
-    E = 2*sqrt(Jx^2 + Jy^2 + Jz^2)
+    E = Jx/4 + Jy/4 + Jz/4
 
     for i=1:2*(N-1)
         # XYZ Heisenberg for Jx!=Jy!=Jz

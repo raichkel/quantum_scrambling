@@ -36,7 +36,7 @@ echo "This jobs runs on the following machines:"
 echo "${SLURM_JOB_NODELIST}" 
 printf "\n\n"
 
-julia old_tdvp_thermal_state.jl 25.0 101 "MF" 0.1 1.0 1.0 1.0
+julia old_tdvp_thermal_state.jl 25.0 61 "MF" 0.1 1.0 1.0 1.0
 
 #T, N, H, ß, Jx, Jy, Jz
 

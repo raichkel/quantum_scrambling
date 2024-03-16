@@ -63,12 +63,14 @@ function commutator_H(N, hx, hz, J;)
 
     H_op = OpSum()
 
+    E = J/4 + hz/2 + hx/2
+
     for i=1:2*(N-1)
-        H_op += (-1)^(i-1) *  J,"Sz",i,"Sz",i+2
+        H_op += (-1)^(i-1) *  J/E,"Sz",i,"Sz",i+2
     end
     for i=1:2*N
-        H_op += (-1)^(i-1) *  hx,"Sx",i
-        H_op += (-1)^(i-1) *  hz,"Sz",i
+        H_op += (-1)^(i-1) *  hx/E,"Sx",i
+        H_op += (-1)^(i-1) *  hz/E,"Sz",i
     end
     
 
