@@ -51,7 +51,7 @@ function identity(N, sitesext)
 end
 
 
-function commutator_H(N; Bx=0.01,Bz=0.01,Jx=1.0,Jy=0.75,Jz=1.25)
+function commutator_H(N;Bz=0.01,Jx=1.0,Jy=0.75,Jz=1.25)
     # think? this is still mixed field Ising model......
     # Vectorisation approach used here is to stack matrix rows into a column vector.
     # This means that:
@@ -64,7 +64,7 @@ function commutator_H(N; Bx=0.01,Bz=0.01,Jx=1.0,Jy=0.75,Jz=1.25)
     H_op = OpSum()
  
 
-    E = 2*sqrt(Jx^2 + Jy^2 + Jz^2)
+    E = Jx/4 + Jy/4 + Jz/4 + 2*Bz/4
 
     for i=1:2*(N-1)
         # XXZ Heisenberg, use Jx=Jy
@@ -74,8 +74,8 @@ function commutator_H(N; Bx=0.01,Bz=0.01,Jx=1.0,Jy=0.75,Jz=1.25)
         H_op += (-1)^(i-1) * Jz/E,"Sz",i,"Sz",i+2
         
         # add external Z and optional X field
-        H_op += (-1)^(i-1) * Bz,"Sz",i
-        H_op += (-1)^(i-1) * Bx,"Sx",i
+        H_op += (-1)^(i-1) * Bz/E,"Sz",i
+        #H_op += (-1)^(i-1) * Bx,"Sx",i
     
     
     end
@@ -151,7 +151,7 @@ end;
 
   
 
-function main(T=5.0, N=21; Bx=0.01,Bz=0.01, Jx=1.0, Jy=0.75, Jz=1.25 )
+function main(T=5.0, N=21; Bz=0.01, Jx=1.0, Jy=0.75, Jz=1.25 )
 
     # N  Number of spins
     J  = 1.0    # ZZ interaction strength
@@ -172,7 +172,7 @@ function main(T=5.0, N=21; Bx=0.01,Bz=0.01, Jx=1.0, Jy=0.75, Jz=1.25 )
     gates = [(Id[n]*Id[n+1] + Sm[n]*Sm[n+1]) for n in 1:2:(2*N)]; # Maps |00> => |00> + |11>
     Ivac = apply(gates, Ivac; cutoff=1e-10); # Note we have no 1/sqrt(2) normalisation
 
-    H_op = commutator_H(N; Bx=Bx, Bz=Bz, Jx=Jx,Jy=Jy,Jz=Jz)
+    H_op = commutator_H(N; Bz=Bz, Jx=Jx,Jy=Jy,Jz=Jz)
     # HC = H ⊗ I - I ⊗ H, since H is real and hermitian H = H^T.
     # Convert these terms to an MPO
     HC = MPO(H_op,sitesext)#;
@@ -372,17 +372,16 @@ end
 
 
 # get values from ARGS
-T, N, Bx, Bz, Jx, Jy, Jz= ARGS[1:end]
+T, N, Bz, Jx, Jy, Jz= ARGS[1:end]
 
 
 N = parse(Int64, N)
 T = parse(Float64, T)
-Bx = parse(Float64, Bx)
 Bz = parse(Float64, Bz)
 Jx = parse(Float64, Jx)
 Jy = parse(Float64, Jy)
 Jz = parse(Float64, Jz)
 
-main(T, N; Bx, Bz, Jx, Jy, Jz)
+main(T, N; Bz, Jx, Jy, Jz)
 
 

@@ -69,7 +69,7 @@ function commutator_H(N, hx, hz, J;)
     end
     for i=1:2*N
         H_op += (-1)^(i-1) *  hx/E,"Sx",i
-        H_op += (-1)^(i-1) *  hz/E,"Sz",i
+        #H_op += (-1)^(i-1) *  hz/E,"Sz",i
     end
     
 

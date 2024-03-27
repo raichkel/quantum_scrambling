@@ -36,7 +36,7 @@ echo "This jobs runs on the following machines:"
 echo "${SLURM_JOB_NODELIST}" 
 printf "\n\n"
 
-julia bose_hubbard.jl 10.0 21 1.0 0.5 0.0
+julia bose_hubbard.jl 100.0 101 1.0 0.5 0.0
 
 
 #T, N, t, U, µ 
