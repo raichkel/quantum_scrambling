@@ -73,9 +73,9 @@ function commutator_H(N;Bz=0.01,Jx=1.0,Jy=0.75,Jz=1.25)
         H_op += (-1)^(i-1) * Jx/E,"Sy",i,"Sy",i+2
         H_op += (-1)^(i-1) * Jz/E,"Sz",i,"Sz",i+2
         
-        # add external Z and optional X field
+        # add external Z field
         H_op += (-1)^(i-1) * Bz/E,"Sz",i
-        #H_op += (-1)^(i-1) * Bx,"Sx",i
+        
     
     
     end
